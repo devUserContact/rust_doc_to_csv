@@ -9,4 +9,5 @@ python main.py
 ```
 The compiled `documentation.csv` separates the documentations data into three 
 columns: 
+
 `tags, article, tokens`
