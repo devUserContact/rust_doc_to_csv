@@ -1,0 +1,4 @@
+rust_doc/*
+out/*
+article.txt
+documentation.csv
