@@ -9,7 +9,6 @@ path_doc = "./rust_doc/"
 path_out = "./out/"
 
 enc = tiktoken.encoding_for_model("gpt-3.5-turbo")
-doc_data = {"tags": [], "article": [], "tokens": []}
 
 for root, dirs, files in os.walk(path_doc):
     for file in files:
@@ -21,6 +20,10 @@ for root, dirs, files in os.walk(path_doc):
             file_org = str(path.join(root, file))
             file_new = str(path_out + prefix + "," + file_no_ext)
             shutil.copyfile(file_org, file_new)
+
+chunk_size = 1000
+chunk_num = 1
+chunk_data = {"tags": [], "article": [], "tokens": []}
 
 for root, dirs, files in os.walk(path_out):
     for file in files:
@@ -39,11 +42,20 @@ for root, dirs, files in os.walk(path_out):
         tokens = len(enc.encode(article.read()))
         article.seek(0)
 
-        doc_data["tags"].append(tags)
-        doc_data["article"].append(article.read())
-        doc_data["tokens"].append(tokens)
+        chunk_data["tags"].append(tags)
+        chunk_data["article"].append(article.read())
+        chunk_data["tokens"].append(tokens)
         article.close()
         open("article.txt", "w").close()
 
-df = pd.DataFrame(doc_data)
-df.to_csv("documentation.csv", index=False, sep=',')
+        if len(chunk_data["tags"]) == chunk_size:
+            df = pd.DataFrame(chunk_data)
+            df.to_csv(f"documentation_chunk{chunk_num}.csv", index=False, sep=",")
+            chunk_num += 1
+            chunk_data = {"tags": [], "article": [], "tokens": []}
+
+if len(chunk_data["tags"]) > 0:
+    df = pd.DataFrame(chunk_data)
+    df.to_csv(f"documentation_chunk{chunk_num}.csv", index=False, sep=",")
+
+os.remove("article.txt")
