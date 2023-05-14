@@ -21,7 +21,7 @@ for root, dirs, files in os.walk(path_doc):
             file_new = str(path_out + prefix + "," + file_no_ext)
             shutil.copyfile(file_org, file_new)
 
-chunk_size = 1000
+chunk_size = 3
 chunk_num = 1
 chunk_data = {"tags": [], "article": [], "tokens": []}
 
@@ -50,12 +50,14 @@ for root, dirs, files in os.walk(path_out):
 
         if len(chunk_data["tags"]) == chunk_size:
             df = pd.DataFrame(chunk_data)
-            df.to_csv(f"documentation_chunk{chunk_num}.csv", index=False, sep=",")
+            chunk_num_str = str(chunk_num).zfill(5)
+            df.to_csv(f"documentation_chunk{chunk_num_str}.csv", index=False, sep=",")
             chunk_num += 1
             chunk_data = {"tags": [], "article": [], "tokens": []}
 
 if len(chunk_data["tags"]) > 0:
     df = pd.DataFrame(chunk_data)
-    df.to_csv(f"documentation_chunk{chunk_num}.csv", index=False, sep=",")
+    chunk_num_str = str(chunk_num).zfill(5)
+    df.to_csv(f"documentation_chunk{chunk_num_str}.csv", index=False, sep=",")
 
 os.remove("article.txt")
